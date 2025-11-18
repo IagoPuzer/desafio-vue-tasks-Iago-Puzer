@@ -2,9 +2,9 @@ import { defineStore } from "pinia";
 import type { Task } from "../types/taskType";
 import {
   getTasks,
-  createTasks,
-  updateTasks,
-  deleteTasks,
+  createTask,
+  updateTask,
+  deleteTask,
 } from "../services/tasksServices";
 
 export const useTasksStore = defineStore("tasks", {
@@ -36,7 +36,7 @@ export const useTasksStore = defineStore("tasks", {
         });
     },
     addTask(task: Omit<Task, "id">): Promise<Task> {
-      return createTasks(task)
+      return createTask(task)
         .then((created: Task) => {
           this.tasks.push(created);
           return created;
@@ -45,7 +45,7 @@ export const useTasksStore = defineStore("tasks", {
     },
     removeTask(id: string): Promise<void> {
       this.pendingIds.push(id);
-      return deleteTasks(id)
+      return deleteTask(id)
         .then(() => {
           this.tasks = this.tasks.filter((task) => task.id !== id);
           this.pendingIds = this.pendingIds.filter((x) => x !== id);
@@ -58,7 +58,7 @@ export const useTasksStore = defineStore("tasks", {
     updateTask(task: Task): Promise<Task> {
       const id = task.id;
       this.pendingIds.push(id);
-      return updateTasks(task)
+      return updateTask(task)
         .then((updated: Task) => {
           const index = this.tasks.findIndex((t) => t.id === updated.id);
           if (index !== -1) {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import TaskForm from "./components/taskForm.vue";
-import TaskList from "./components/taskList.vue";
+import createTaskForm from "./components/createTaskForm.vue";
+import listTasks from "./components/listTasks.vue";
 </script>
 
 <template>
@@ -10,8 +10,8 @@ import TaskList from "./components/taskList.vue";
         class="rounded-2xl bg-white/70 backdrop-blur-sm shadow-lg p-6 space-y-6"
       >
         <h1 class="text-3xl font-bold tracking-tight">Lista de Tarefas</h1>
-        <TaskForm />
-        <TaskList />
+        <createTaskForm />
+        <listTasks />
       </div>
     </div>
   </div>

@@ -8,21 +8,21 @@ export const getTasks = () => {
     .catch((error) => Promise.reject(error));
 };
 
-export const createTasks = (task: Omit<Task, "id">) => {
+export const createTask = (task: Omit<Task, "id">) => {
   return axios
     .post("/Tasks", task)
     .then((response) => response.data)
     .catch((error) => Promise.reject(error));
 };
 
-export const updateTasks = (task: Task) => {
+export const updateTask = (task: Task) => {
   return axios
     .put(`/Tasks/${task.id}`, task)
     .then((response) => response.data)
     .catch((error) => Promise.reject(error));
 };
 
-export const deleteTasks = (id: string) => {
+export const deleteTask = (id: string) => {
   return axios
     .delete(`/Tasks/${id}`)
     .then((response) => response.data)
