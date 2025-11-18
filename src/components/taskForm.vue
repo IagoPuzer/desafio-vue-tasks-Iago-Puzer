@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useTasksStore } from "../stores/task";
+import { useTasksStore } from "../stores/taskStore";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 
@@ -10,16 +10,24 @@ const description = ref("");
 const toast = useToast();
 
 function submit() {
-  if (!title.value.trim()) return;
-  store.addTask({
-    id: Date.now(),
-    title: title.value,
-    description: description.value,
-    is_completed: false,
-  });
-  toast.success("Tarefa adicionada com sucesso!");
-  title.value = "";
-  description.value = "";
+  if (!title.value.trim()) {
+    toast.error("O título da tarefa é obrigatório!");
+    return;
+  }
+  store
+    .addTask({
+      title: title.value,
+      description: description.value,
+      is_completed: false,
+    })
+    .then(() => {
+      toast.success("Tarefa adicionada com sucesso!");
+      title.value = "";
+      description.value = "";
+    })
+    .catch(() => {
+      toast.error("Erro ao adicionar tarefa");
+    });
 }
 </script>
 
@@ -37,7 +45,8 @@ function submit() {
     />
     <button
       type="submit"
-      class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.99] transition"
+      class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.99] transition cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+      :disabled="!!store.error"
     >
       Adicionar
     </button>

@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useTasksStore } from "../stores/task";
+import { ref, onMounted } from "vue";
+import { useTasksStore } from "../stores/taskStore";
 import type { Task } from "../types/taskType";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 
 const store = useTasksStore();
-const editingId = ref<number | null>(null);
+const editingId = ref<string | null>(null);
 const editTitle = ref("");
 const editDescription = ref("");
 const toast = useToast();
+
+onMounted(() => {
+  store.fetchTasks().catch(() => {
+    toast.error("Erro ao carregar tarefas");
+  });
+});
 
 function startEdit(task: Task) {
   editingId.value = task.id;
@@ -18,30 +24,49 @@ function startEdit(task: Task) {
 }
 
 function saveEdit(task: Task) {
-  store.updateTask({
-    ...task,
-    title: editTitle.value,
-    description: editDescription.value,
-  });
-  toast.success("Tarefa atualizada com sucesso!");
-  editingId.value = null;
+  store
+    .updateTask({
+      ...task,
+      title: editTitle.value,
+      description: editDescription.value,
+    })
+    .then(() => {
+      toast.success("Tarefa atualizada com sucesso!");
+      editingId.value = null;
+    })
+    .catch(() => {
+      toast.error("Erro ao atualizar tarefa");
+    });
 }
 
 function toggleTaskStatus(task: Task) {
-  store.updateTask({
-    ...task,
-    is_completed: !task.is_completed,
-  });
-  if (!task.is_completed) {
-    toast.success("Tarefa concluída!");
-  } else {
-    toast.info("Tarefa  pendente!");
-  }
+  const newStatus = !task.is_completed;
+  store
+    .updateTask({
+      ...task,
+      is_completed: newStatus,
+    })
+    .then(() => {
+      if (newStatus) {
+        toast.success("Tarefa concluída!");
+      } else {
+        toast.info("Tarefa pendente!");
+      }
+    })
+    .catch(() => {
+      toast.error("Erro ao atualizar status da tarefa");
+    });
 }
 
-function removeTask(id: number) {
-  store.removeTask(id);
-  toast.success("Tarefa removida com sucesso!");
+function removeTask(id: string) {
+  store
+    .removeTask(id)
+    .then(() => {
+      toast.success("Tarefa removida com sucesso!");
+    })
+    .catch(() => {
+      toast.error("Erro ao remover tarefa");
+    });
 }
 
 function cancelEdit() {
@@ -52,7 +77,19 @@ function cancelEdit() {
 <template>
   <div class="space-y-3">
     <div
-      v-if="store.tasks.length === 0"
+      v-if="store.isLoading"
+      class="rounded-xl border bg-white/70 p-6 text-center text-gray-600"
+    >
+      Carregando tarefas...
+    </div>
+    <div
+      v-else-if="store.error"
+      class="rounded-xl border bg-red-50 p-6 text-center text-red-700"
+    >
+      Erro ao carregar Tasks
+    </div>
+    <div
+      v-else-if="store.tasks.length === 0"
       class="rounded-xl border border-dashed bg-white/70 p-6 text-center text-gray-600"
     >
       Nenhuma tarefa ainda. Adicione uma nova acima.
@@ -67,6 +104,7 @@ function cancelEdit() {
           type="checkbox"
           :checked="task.is_completed"
           @change="toggleTaskStatus(task)"
+          :disabled="store.pendingIds.includes(task.id)"
           class="mt-1 h-5 w-5"
         />
         <div class="flex-1">
@@ -82,6 +120,7 @@ function cancelEdit() {
             <div class="flex gap-2">
               <button
                 class="rounded-lg bg-green-600 text-white px-4 py-2 font-medium shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/40 transition"
+                :disabled="store.pendingIds.includes(task.id)"
                 @click="saveEdit(task)"
               >
                 Salvar
@@ -104,7 +143,7 @@ function cancelEdit() {
             <div class="text-sm text-gray-600">{{ task.description }}</div>
           </div>
         </div>
-        <div class="flex flex-col gap-2">
+        <div v-if="editingId !== task.id" class="flex flex-col gap-2">
           <button
             class="rounded-lg bg-amber-500 text-white px-3 py-2 font-medium shadow-sm hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500/40 transition"
             @click="startEdit(task)"
@@ -113,6 +152,7 @@ function cancelEdit() {
           </button>
           <button
             class="rounded-lg bg-red-600 text-white px-3 py-2 font-medium shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/40 transition"
+            :disabled="store.pendingIds.includes(task.id)"
             @click="removeTask(task.id)"
           >
             Remover
