@@ -78,13 +78,13 @@ function cancelEdit() {
     </div>
     <div v-if="!editing" class="flex flex-col gap-2">
       <button
-        class="rounded-lg bg-amber-500 text-white px-3 py-2 font-medium shadow-sm hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500/40 transition"
+        class="rounded-lg bg-amber-500 text-white px-3 py-2 font-medium shadow-sm hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500/40 transition cursor-pointer"
         @click="startEdit"
       >
         Editar
       </button>
       <button
-        class="rounded-lg bg-red-600 text-white px-3 py-2 font-medium shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/40 transition"
+        class="rounded-lg bg-red-600 text-white px-3 py-2 font-medium shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/40 transition cursor-pointer"
         :disabled="props.pending"
         @click="emit('remove', { id: props.task.id })"
       >

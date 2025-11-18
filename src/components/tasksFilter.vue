@@ -13,7 +13,7 @@ function setFilter(value: "all" | "completed" | "pending") {
 <template>
   <div class="flex gap-2">
     <button
-      class="px-3 py-2 rounded-lg"
+      class="px-3 py-2 rounded-lg cursor-pointer"
       :class="
         modelValue === 'all'
           ? 'bg-blue-600 text-white'
@@ -24,7 +24,7 @@ function setFilter(value: "all" | "completed" | "pending") {
       Todas
     </button>
     <button
-      class="px-3 py-2 rounded-lg"
+      class="px-3 py-2 rounded-lg cursor-pointer"
       :class="
         modelValue === 'completed'
           ? 'bg-blue-600 text-white'
@@ -35,7 +35,7 @@ function setFilter(value: "all" | "completed" | "pending") {
       Concluídas
     </button>
     <button
-      class="px-3 py-2 rounded-lg"
+      class="px-3 py-2 rounded-lg cursor-pointer"
       :class="
         modelValue === 'pending'
           ? 'bg-blue-600 text-white'
